@@ -1,58 +1,65 @@
 module Spirits.View exposing (view)
 
+import Game.TwoD.Render exposing (Renderable)
 import Html exposing (Html, div, h1, text)
 import Html.Attributes exposing (style)
-import Collage exposing (collage, Form, rect, filled, move, alpha)
+import Html.Events as Events
 import Element exposing (toHtml)
 import Color
+import Json.Decode as Decode
 import List
 import Debug
-
 import Spirits.Message exposing (Message(..))
 import Spirits.Model exposing (Model)
-import Spirits.Entity exposing (Entity)
+
+import Game.TwoD as Game
+import Spirits.Entities.NPC exposing (renderNPC)
+import Spirits.Entities.Player exposing (renderPlayer)
 
 
 view : Model -> Html Message
 view model =
-  div
-  [ style
-    [ "padding" => "30px"
-    , "margin-left" => "auto"
-    , "margin-right" => "auto"
-    ]
-  ]
-  [ h1
-    [] [text "Spirits" ]
-  , renderGameView model
-  ]
+  let
+    screenSize = (model.view.width, model.view.height)
+  in
+    div
+        [ style
+            [ "padding" => "30px"
+            , "margin-left" => "auto"
+            , "margin-right" => "auto"
+            ]
+        ]
+        [ h1
+            []
+            [ text "Spirits" ]
+        , Game.renderWithOptions
+            [Events.on "click" relativeDecoder ]
+            { time = model.time
+            , size = screenSize
+            , camera = model.camera
+            }
+            |> render model
+        ]
 
 
-screenWidth = 640
-screenHeight = 320
+relativeDecoder : Decode.Decoder Click
+relativeDecoder = Click |>
+  (Decode.map2 (-)
+    |> Decode.at ["pageX"] Decode.int
+    |> Decode.at ["target", "offsetLeft"] Decode.int
+  , Decode.map2 (-)
+    |> Decode.at ["pageY"] Decode.int
+    |> Decode.at ["target", "offsetTop"] Decode.int
+  )
 
 
-renderGameView : Model -> Html Message
-renderGameView model =
-  collage screenWidth screenHeight (renderBackground :: renderEntities model) |> toHtml
+render : Model -> List Renderable
+render model =
+  model.world ++
+  (List.map renderNPC model.npcs) ++
+  (renderPlayer model.player)
 
 
-renderBackground : Form
-renderBackground = alpha 0.1 <| filled Color.lightGreen <| rect screenWidth screenHeight
-
-
-renderEntities : Model -> List Form
-renderEntities {entities} =
-  List.map renderEntity <| List.sortBy (\e -> e.position.z) entities
-
-
-renderEntity : Entity -> Form
-renderEntity {position, color, width, height, name} =
-  Debug.log (toString position ++ toString color ++ toString name)
-  <| move (position.x, position.y) <| filled color <| rect width height
-
-
-(=>) : a -> b -> (a, b)
-(=>) a b = (a, b)
-
-
+(=>) : a -> b -> ( a, b )
+(=>) a b =
+    ( a, b )
