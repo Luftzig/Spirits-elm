@@ -1,11 +1,11 @@
-module Spirits.Message exposing (Message(..))
+module Spirits.Message exposing (Msg(..))
 
 import Time exposing (Time)
 import Keyboard exposing (KeyCode)
 import Mouse exposing (Position)
 
 
-type Message
+type Msg
     = Initialize
     | Start
     | Pause
@@ -13,3 +13,4 @@ type Message
     | Tick Time
     | KeyChange Bool KeyCode
     | Click Position
+    | Somthing Position

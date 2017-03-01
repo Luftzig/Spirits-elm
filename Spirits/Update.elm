@@ -6,7 +6,7 @@ import Spirits.Model exposing (Model)
 import Spirits.Message as Messages
 
 
-update : Messages.Message -> Model -> ( Model, Cmd Messages.Message )
+update : Messages.Msg -> Model -> ( Model, Cmd Messages.Msg )
 update msg model =
     case msg of
         Messages.Initialize ->

@@ -6,17 +6,17 @@ import AnimationFrame
 import Keyboard
 import Mouse
 import Spirits.Model exposing (Model, initial)
-import Spirits.Message exposing (Message(..))
+import Spirits.Message exposing (Msg(..))
 import Spirits.View as View
 import Spirits.Update as Update
 
 
-subscriptions : Model -> Sub Message
+subscriptions : Model -> Sub Msg
 subscriptions model =
-    [AnimationFrame.diffs Tick]
+    Sub.batch [ AnimationFrame.diffs Tick ]
 
 
-game : Program Never Model Message
+game : Program Never Model Msg
 game =
     Html.program
         { init = init
@@ -26,11 +26,11 @@ game =
         }
 
 
-init : ( Model, Cmd Message )
+init : ( Model, Cmd Msg )
 init =
     ( initial, Task.perform (always Initialize) (Task.succeed 0) )
 
 
-main : Program Never Model Message
+main : Program Never Model Msg
 main =
     game
